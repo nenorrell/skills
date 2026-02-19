@@ -1,12 +1,85 @@
 # Creating DaisyUI Components
 
 ## Table of Contents
+- [Bootstrapping Foundational Files](#bootstrapping-foundational-files)
 - [Directory Structure](#directory-structure)
 - [Simple Component Pattern](#simple-component-pattern)
 - [Compound Component Pattern](#compound-component-pattern)
 - [Registering in daisy-meta.ts](#registering-in-daisy-metats)
 - [Safelist Integration](#safelist-integration)
 - [Testing Components](#testing-components)
+
+---
+
+## Bootstrapping Foundational Files
+
+Before creating any component, verify these files exist. If missing, create them from the bundled `scripts/` templates.
+
+### Checklist
+
+| File | Source | Purpose |
+|------|--------|---------|
+| `<DAISY_COMPONENTS_DIR>/daisy-meta.ts` | Bundled `scripts/daisy-meta.ts` | Central metadata & types |
+| `generators/daisy/generate-daisy-safelist.ts` | Bundled `scripts/generate-daisy-safelist.ts` | Safelist CSS generator |
+| `src/app/styles/daisy-safelist.css` | Auto-generated | Prevents Tailwind tree-shaking |
+| `src/app/styles/daisy.css` | Create manually | daisyUI plugin + safelist import |
+| `package.json` `"generate:safelist"` script | Add manually | Runs the generator |
+
+### 1. Create daisy-meta.ts
+
+Copy the bundled `scripts/daisy-meta.ts` to `<DAISY_COMPONENTS_DIR>/daisy-meta.ts`. No modifications needed — it works as-is.
+
+### 2. Create generate-daisy-safelist.ts
+
+Copy the bundled `scripts/generate-daisy-safelist.ts` to `generators/daisy/generate-daisy-safelist.ts`. **Update the import path** to point to the actual `daisy-meta.ts` location:
+
+```ts
+// Before (bundled path):
+import { ... } from "./daisy-meta.ts";
+
+// After (adjust to match your project structure):
+import { ... } from "../../src/components/daisy/daisy-meta.ts";
+```
+
+### 3. Create daisy.css
+
+Create `src/app/styles/daisy.css`:
+
+```css
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+@import 'daisy-safelist.css';
+```
+
+Adjust the `themes` line to match project requirements. This file must be imported in the root layout or global CSS entry point (e.g. `layout.tsx` or `globals.css`).
+
+### 4. Add npm script
+
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "generate:safelist": "npx tsx generators/daisy/generate-daisy-safelist.ts"
+  }
+}
+```
+
+### 5. Generate initial safelist
+
+```bash
+npm run generate:safelist
+```
+
+This creates `src/app/styles/daisy-safelist.css` with all registered component classes.
+
+### Keeping files updated
+
+When adding a new component:
+1. Add its entry to `COMPONENT_CAPABILITIES` in `daisy-meta.ts`
+2. Run `npm run generate:safelist` to regenerate the safelist
+3. If the component uses a new capability type not in `ComponentCapability`, update both `daisy-meta.ts` (add the type) and `generate-daisy-safelist.ts` (add iteration in `buildClassList()`)
 
 ---
 

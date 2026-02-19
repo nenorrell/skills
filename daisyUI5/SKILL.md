@@ -142,35 +142,36 @@ Follow this workflow when creating or extending React components that wrap daisy
 ### 1. Resolve the components directory
 Check `AGENTS.md` or `CLAUDE.md` for a `DAISY_COMPONENTS_DIR` variable. If not found, use `src/components/daisy`.
 
-### 2. Register in daisy-meta.ts
-Before writing the component, add its capabilities to `COMPONENT_CAPABILITIES` in `<DAISY_COMPONENTS_DIR>/daisy-meta.ts`. Reference the daisyUI docs (see Component Reference below) for which modifiers the component supports.
+### 2. Ensure foundational files exist
+Before creating any component, verify the project has the required infrastructure. If any are missing, create them from the bundled `scripts/` templates. See [references/creating-components.md](references/creating-components.md) for the full bootstrapping checklist and file contents.
 
-### 3. Create the component
+Required files:
+- `<DAISY_COMPONENTS_DIR>/daisy-meta.ts` — from bundled `scripts/daisy-meta.ts`
+- `generators/daisy/generate-daisy-safelist.ts` — from bundled `scripts/generate-daisy-safelist.ts` (update the import path to point to daisy-meta.ts)
+- `src/app/styles/daisy.css` — must import daisyUI plugin and the generated safelist
+- `package.json` script `"generate:safelist"` — must run the generator
+- The `daisy.css` file must be imported in the root layout or global CSS entry point
+
+### 3. Register in daisy-meta.ts
+Add the new component's capabilities to `COMPONENT_CAPABILITIES` in `<DAISY_COMPONENTS_DIR>/daisy-meta.ts`. Reference the daisyUI docs (see Component Reference below) for which modifiers it supports.
+
+### 4. Create the component
 - Follow patterns in existing `<DAISY_COMPONENTS_DIR>/daisy*` files
 - Prefer compound components for multi-part daisyUI components (card, modal, dropdown, etc.)
 - Each sub-component in a compound component gets its own file
 - See [references/creating-components.md](references/creating-components.md) for compound component structure
 
-### 4. Generate safelist
+### 5. Generate safelist
 ```bash
 npm run generate:safelist
 ```
-Generates `src/app/styles/daisy-safelist.css`. Ensure this file is imported in a `daisy.css`:
-```css
-@plugin "daisyui" {
-  themes: "theme-name --default, theme-dark --prefersdark;";
-}
-@import 'daisy-safelist.css';
-```
-And that `daisy.css` is imported in the root layout or global CSS.
+Generates `src/app/styles/daisy-safelist.css`.
 
-### 5. Add tests
+### 6. Add tests
 Use the project's test framework (check `package.json` for jest/vitest). Default to Jest + React Testing Library. Test: rendering, prop variations (colors, sizes, variants), compound component composition, and accessibility.
 
-### 6. Extend the safelist generator
-If the new component introduces a capability modifier not yet handled in `generators/daisy/generate-daisy-safelist.ts`, update `buildClassList()` to iterate over it.
-
-**Note:** The bundled `scripts/daisy-meta.ts` and `scripts/generate-daisy-safelist.ts` are reference templates. In a project, they live at different paths (`<DAISY_COMPONENTS_DIR>/daisy-meta.ts` and `generators/daisy/generate-daisy-safelist.ts`). Adjust the import path in `generate-daisy-safelist.ts` to point to the actual location of `daisy-meta.ts` in the project.
+### 7. Extend the safelist generator
+If the new component introduces a capability modifier not yet handled in `generate-daisy-safelist.ts`, update `buildClassList()` to iterate over it.
 
 ## Component Reference
 
